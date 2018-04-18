@@ -6,6 +6,7 @@ module Terraforming
     class_option :profile, type: :string, desc: "AWS credentials profile"
     class_option :region, type: :string, desc: "AWS region"
     class_option :assume, type: :string, desc: "Role ARN to assume"
+    class_option :filters, type: :string, desc: "Resources filter"
     class_option :use_bundled_cert,
                  type: :boolean,
                  desc: "Use the bundled CA certificate from AWS SDK"
@@ -215,6 +216,11 @@ module Terraforming
       execute(Terraforming::Resource::VPNGateway, options)
     end
 
+    desc "vct", "VPN Connection"
+    def vct
+      execute(Terraforming::Resource::VPNConnection, options)
+    end
+
     desc "snst", "SNS Topic"
     def snst
       execute(Terraforming::Resource::SNSTopic, options)
@@ -255,7 +261,13 @@ module Terraforming
     end
 
     def tf(klass)
-      klass.tf
+	begin
+		filters_arr = MultiJson.load(options[:filters], :symbolize_keys => true)
+	rescue MultiJson::ParseError => exception
+		exception.data
+		exception.cause
+	end
+	klass.tf(filters: filters_arr)
     end
 
     def tfstate(klass, tfstate_path)

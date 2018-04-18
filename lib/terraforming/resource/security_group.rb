@@ -3,16 +3,17 @@ module Terraforming
     class SecurityGroup
       include Terraforming::Util
 
-      def self.tf(client: Aws::EC2::Client.new)
-        self.new(client).tf
+      def self.tf(client: Aws::EC2::Client.new, filters: [{}])
+        self.new(client, filters).tf
       end
 
-      def self.tfstate(client: Aws::EC2::Client.new)
-        self.new(client).tfstate
+      def self.tfstate(client: Aws::EC2::Client.new, filters: [{}])
+        self.new(client, filters).tfstate
       end
 
-      def initialize(client)
+      def initialize(client, filters)
         @client = client
+	@filters = filters
       end
 
       def tf
@@ -159,7 +160,7 @@ module Terraforming
       end
 
       def security_groups
-        @client.describe_security_groups.map(&:security_groups).flatten
+	@client.describe_security_groups({filters: @filters}).map(&:security_groups).flatten
       end
 
       def security_groups_in(permission, security_group)

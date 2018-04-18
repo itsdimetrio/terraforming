@@ -330,6 +330,13 @@ module Terraforming
         it_behaves_like "CLI examples"
       end
 
+      describe "vct" do
+	let(:klass)   { Terraforming::Resource::VPNConnection }
+	let(:command) { :vct }
+	
+	it_behaves_like "CLI examples"
+      end
+
       describe "snst" do
         let(:klass)   { Terraforming::Resource::SNSTopic }
         let(:command) { :snst }

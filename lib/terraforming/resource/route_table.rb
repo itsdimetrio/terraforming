@@ -3,16 +3,17 @@ module Terraforming
     class RouteTable
       include Terraforming::Util
 
-      def self.tf(client: Aws::EC2::Client.new)
-        self.new(client).tf
+      def self.tf(client: Aws::EC2::Client.new, filters: [{}])
+        self.new(client, filters).tf
       end
 
-      def self.tfstate(client: Aws::EC2::Client.new)
-        self.new(client).tfstate
+      def self.tfstate(client: Aws::EC2::Client.new, filters: [{}])
+        self.new(client, filters).tfstate
       end
 
-      def initialize(client)
+      def initialize(client, filters)
         @client = client
+	@filters = filters
       end
 
       def tf
@@ -57,7 +58,7 @@ module Terraforming
       end
 
       def route_tables
-        @client.describe_route_tables.map(&:route_tables).flatten
+        @client.describe_route_tables({filters: @filters}).map(&:route_tables).flatten
       end
 
       def routes_attributes_of(route_table)
